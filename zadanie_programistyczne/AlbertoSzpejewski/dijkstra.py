@@ -1,5 +1,5 @@
 from typing import List, Dict, Tuple, Union
-from pprint import pprint
+
 
 def create_graph(graph: Dict[Tuple[str, str], float]
                  ) -> Dict[str, Dict[str, float]]:
@@ -48,19 +48,22 @@ def create_table(graph: Dict[str, Dict[str, int]]
 
     return table
 
-def next_node(table, unvisited):
+
+def next_node(table, non_visited):
     copy_table = table.copy()
+
     for element in table:
-        if element not in unvisited:
+        print(element, non_visited)
+        if element not in non_visited:
             del copy_table[element]
 
-    for x in table:
-        if x in unvisited:
-            if table[x][0] == copy_table[min(copy_table, key=lambda x: table[x][0])][0]:
-                return x
+    for element in table:
+        if element in non_visited:
+            if table[element][0] == copy_table[min(copy_table, key=lambda x: table[x][0])][0]:
+                return element
 
-def dijkstra(start: str, end: str,
-             graph: Dict[str, Dict[str, int]],
+
+def dijkstra(start: str, graph: Dict[str, Dict[str, int]],
              table: Dict[str, List[Union[int, str]]]
              ) -> Dict[str, List[Union[int, str]]]:
     """
@@ -80,13 +83,6 @@ def dijkstra(start: str, end: str,
     table[start][0] = 0
     current_node = start
 
-    # Instead of adding every node,
-    # a stack can be used to store discovered nodes
-    #non_visited = [node for node in graph.keys()]
-
-    # The loop runs until there is no element in the list
-    # The loop doesn't calculate the last element
-
     non_visited = [node for node in graph.keys()]
     visited = []
 
@@ -95,9 +91,6 @@ def dijkstra(start: str, end: str,
         neighbours = graph[current_node].items()
 
         for node, length in neighbours:
-            for i, j in table.items():
-                print(i, j, length + table[current_node][0])
-
             if length + table[current_node][0] < table[node][0]:
                 table[node][0], table[node][1] = length + table[current_node][0], current_node
 
@@ -105,7 +98,6 @@ def dijkstra(start: str, end: str,
         visited.append(current_node)
 
         current_node = next_node(table, non_visited)
-        print(current_node, non_visited)
 
     return table
 
@@ -129,14 +121,11 @@ def print_answer(start: str, end: str,
     graph = create_graph(graph)
     table = create_table(graph)
 
-    answer = dijkstra(start, end, graph, table)
+    answer = dijkstra(start, graph, table)
 
     node = end
 
     traversal = [end]
-
-    for i, j in table.items():
-        print(i, j)
 
     while answer[node][1] != start:
         node = answer[node][1]
@@ -145,7 +134,6 @@ def print_answer(start: str, end: str,
 
     while traversal:
         print(traversal.pop(), end='')
-
 
     print()
     print(table[end][0])
