@@ -1,5 +1,5 @@
 from typing import List, Dict, Tuple, Union
-
+from pprint import pprint
 
 def create_graph(graph: Dict[Tuple[str, str], float]
                  ) -> Dict[str, Dict[str, float]]:
@@ -27,7 +27,6 @@ def create_graph(graph: Dict[Tuple[str, str], float]
             connection_graph[connection[1]][connection[0]] = value
         else:
             connection_graph[connection[1]] = {connection[0]: value}
-
     return connection_graph
 
 
@@ -45,10 +44,20 @@ def create_table(graph: Dict[str, Dict[str, int]]
     table = {}
 
     for node in graph.keys():
-        table[node] = [float("inf"), ""]
+        table[node] = [float("inf"), None]
 
     return table
 
+def next_node(table, unvisited):
+    copy_table = table.copy()
+    for element in table:
+        if element not in unvisited:
+            del copy_table[element]
+
+    for x in table:
+        if x in unvisited:
+            if table[x][0] == copy_table[min(copy_table, key=lambda x: table[x][0])][0]:
+                return x
 
 def dijkstra(start: str, end: str,
              graph: Dict[str, Dict[str, int]],
@@ -73,55 +82,30 @@ def dijkstra(start: str, end: str,
 
     # Instead of adding every node,
     # a stack can be used to store discovered nodes
-    non_visited = [node for node in graph.keys()]
-    visited = []
-
-    non_visited.remove(end)
-
-    shortest_length = 0
+    #non_visited = [node for node in graph.keys()]
 
     # The loop runs until there is no element in the list
     # The loop doesn't calculate the last element
+
+    non_visited = [node for node in graph.keys()]
+    visited = []
+
     while non_visited:
-        minimum_node = ""
-        minimum_length = float("inf")
 
-        for node, length in graph[current_node].items():
-            if node in visited:
-                continue
+        neighbours = graph[current_node].items()
 
-            if length + shortest_length < table[node][0]:
-                table[node][0], table[node][1] = length + shortest_length, current_node
+        for node, length in neighbours:
+            for i, j in table.items():
+                print(i, j, length + table[current_node][0])
 
-            if table[node][0] < minimum_length:
-                minimum_length = table[node][0]
-                minimum_node = node
+            if length + table[current_node][0] < table[node][0]:
+                table[node][0], table[node][1] = length + table[current_node][0], current_node
 
-        shortest_length = minimum_length
+        non_visited.remove(current_node)
+        visited.append(current_node)
 
-        if current_node == end:
-            visited.append(non_visited[-1])
-            current_node = non_visited.pop()
-            shortest_length = table[current_node][0]
-        elif current_node not in non_visited:
-            current_node = minimum_node
-        else:
-            visited.append(current_node)
-            non_visited.remove(current_node)
-            current_node = minimum_node
-
-    minimum_length = float("inf")
-
-    # Perform the node search for the last node
-    for node, length in graph[current_node].items():
-        if node in visited:
-            continue
-
-        if length + shortest_length < table[node][0]:
-            table[node][0], table[node][1] = length + shortest_length, current_node
-
-        if table[node][0] < minimum_length:
-            minimum_length = table[node][0]
+        current_node = next_node(table, non_visited)
+        print(current_node, non_visited)
 
     return table
 
@@ -151,7 +135,8 @@ def print_answer(start: str, end: str,
 
     traversal = [end]
 
-    print(f"From {start} to {end}: ")
+    for i, j in table.items():
+        print(i, j)
 
     while answer[node][1] != start:
         node = answer[node][1]
@@ -161,4 +146,6 @@ def print_answer(start: str, end: str,
     while traversal:
         print(traversal.pop(), end='')
 
+
     print()
+    print(table[end][0])
