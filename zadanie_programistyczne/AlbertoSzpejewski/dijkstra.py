@@ -1,8 +1,9 @@
-from typing import List, Dict, Tuple, Union
+from typing import List, Dict, Tuple, Union, NoReturn
 
+Graph = Dict[str, Dict[str, float]]
+Table = Dict[str, List[Union[float, str]]]
 
-def create_graph(graph: Dict[Tuple[str, str], float]
-                 ) -> Dict[str, Dict[str, float]]:
+def create_graph(graph: Dict[Tuple[str, str], float]) -> Graph:
     """
     Function reshapes the given data into a more
     human and computer readable format. The data structure contains
@@ -30,8 +31,7 @@ def create_graph(graph: Dict[Tuple[str, str], float]
     return connection_graph
 
 
-def create_table(graph: Dict[str, Dict[str, int]]
-                 ) -> Dict[str, List[Union[float, str]]]:
+def create_table(graph: Graph) -> Table:
     """
     Creates a table needed to perform Dijkstra algorithm
 
@@ -49,23 +49,30 @@ def create_table(graph: Dict[str, Dict[str, int]]
     return table
 
 
-def next_node(table, non_visited):
-    copy_table = table.copy()
+def next_node(table: Table, non_visited: List) -> str:
+    """
+    Chooses the next node available from the non_visited list.
+    When the node is not in non_visited, then skips it and 
+    proceed to chose other ones
 
-    for element in table:
-        print(element, non_visited)
-        if element not in non_visited:
-            del copy_table[element]
+    Args:
+        table: Dict[str, List[Union[float, str]]]
+        non_visited: List[str]
 
-    for element in table:
-        if element in non_visited:
-            if table[element][0] == copy_table[min(copy_table, key=lambda x: table[x][0])][0]:
-                return element
+    Returns:
+        str
+    """
+
+    looked = {}
+
+    for node in non_visited:
+        looked[node] = table[node][0]
+    
+    if looked: 
+        return min(looked, key=looked.get)
 
 
-def dijkstra(start: str, graph: Dict[str, Dict[str, int]],
-             table: Dict[str, List[Union[int, str]]]
-             ) -> Dict[str, List[Union[int, str]]]:
+def dijkstra(start: str, graph: Graph, table: Table) -> Table:
     """
     Performs Dijkstra algorithm on the
     processed graph
@@ -80,6 +87,8 @@ def dijkstra(start: str, graph: Dict[str, Dict[str, int]],
         Dict[str, List[Union[int, str]]]: Final unprocessed Dijkstra's table
     """
 
+    # Starts putting a zero in the beggining value
+    # establishing the lowest value to a node
     table[start][0] = 0
     current_node = start
 
@@ -87,7 +96,6 @@ def dijkstra(start: str, graph: Dict[str, Dict[str, int]],
     visited = []
 
     while non_visited:
-
         neighbours = graph[current_node].items()
 
         for node, length in neighbours:
@@ -102,9 +110,7 @@ def dijkstra(start: str, graph: Dict[str, Dict[str, int]],
     return table
 
 
-def print_answer(start: str, end: str,
-                 graph: Dict[Tuple[str, str], float]
-                 ) -> None:
+def print_answer(start: str, end: str, graph: Graph) -> NoReturn:
     """
     Groups every function return and processes
     it to get an easy to read shortest path
@@ -115,7 +121,7 @@ def print_answer(start: str, end: str,
         graph Dict[Tuple[str, str], float]: Graph from create graph function
 
     Returns:
-        None
+        NoReturn
     """
 
     graph = create_graph(graph)
