@@ -16,7 +16,7 @@ def create_graph(graph: Dict[Tuple[str, str], float]) -> Graph:
         Dict[str, Dict[str, int]]
     """
 
-    connection_graph = {}
+    connection_graph: Graph = {}
 
     for connection, value in graph.items():
         if connection[0] in connection_graph:
@@ -41,7 +41,7 @@ def create_table(graph: Graph) -> Table:
     Returns:
         Dict[str, List[Union[float, str]]]
     """
-    table = {}
+    table: Table = {}
 
     for node in graph.keys():
         table[node] = [float("inf"), None]
@@ -63,7 +63,7 @@ def next_node(table: Table, non_visited: List) -> str:
         str
     """
 
-    looked = {}
+    looked: Dict[str, int] = {}
 
     for node in non_visited:
         looked[node] = table[node][0]
@@ -92,8 +92,8 @@ def dijkstra(start: str, graph: Graph, table: Table) -> Table:
     table[start][0] = 0
     current_node = start
 
-    non_visited = [node for node in graph.keys()]
-    visited = []
+    non_visited: List[str] = [node for node in graph.keys()]
+    visited: List[str] = []
 
     while non_visited:
         neighbours = graph[current_node].items()
